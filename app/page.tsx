@@ -4,23 +4,30 @@ import React, { useCallback, useMemo, useState } from "react";
 
 type SubmitState = "idle" | "loading" | "success" | "error";
 
+// Redesigned segmented phone control (no external phone UI lib)
+
 export default function Home() {
 	const [phone, setPhone] = useState<string>("");
+	const [countryCode, setCountryCode] = useState<string>("+353");
+	const [localNumber, setLocalNumber] = useState<string>("");
 	const [submitState, setSubmitState] = useState<SubmitState>("idle");
 	const [message, setMessage] = useState<string>("");
 
-	const isDisabled = useMemo(() => submitState === "loading" || phone.trim().length === 0, [submitState, phone]);
+	const isDisabled = useMemo(() => submitState === "loading" || (countryCode.trim().length === 0 || localNumber.trim().length === 0), [submitState, countryCode, localNumber]);
 
 	const onSubmit = useCallback<React.FormEventHandler<HTMLFormElement>>(async (e) => {
 		e.preventDefault();
-		if (!phone.trim()) return;
+		const sanitizedCode = countryCode.replace(/\s/g, "").replace(/^\+?/, "+");
+		const digits = localNumber.replace(/[^0-9]/g, "");
+		const combined = `${sanitizedCode}${digits ? " " + digits : ""}`.trim();
+		if (!digits) return;
 		setSubmitState("loading");
 		setMessage("");
 		try {
 			const res = await fetch("/api/callback", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ phone: phone.trim() }),
+				body: JSON.stringify({ phone: combined }),
 			});
 			if (!res.ok) {
 				throw new Error(`Request failed: ${res.status}`);
@@ -36,7 +43,7 @@ export default function Home() {
 				setSubmitState((prev) => (prev === "loading" ? "loading" : "idle"));
 			}, 3000);
 		}
-	}, [phone]);
+	}, [countryCode, localNumber]);
 
   return (
 		<main className="min-h-screen bg-white text-gray-900">
@@ -81,21 +88,43 @@ export default function Home() {
 
 						{/* Callback Form */}
 						<div id="callback" className="mt-8 w-full max-w-xl">
-							<form onSubmit={onSubmit} className="flex flex-col gap-3 rounded-xl bg-white/90 p-3 shadow-lg backdrop-blur sm:flex-row sm:gap-2 sm:p-2">
-								<label htmlFor="phone" className="sr-only">
-									Phone number
-								</label>
-								<input
-									id="phone"
-									name="phone"
-									type="tel"
-									inputMode="tel"
-									autoComplete="tel"
-									placeholder="Enter your phone number..."
-									value={phone}
-									onChange={(e) => setPhone(e.target.value)}
-									className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-								/>
+							<form onSubmit={onSubmit} className="flex w-full flex-col gap-3 rounded-xl bg-white/90 p-3 shadow-lg backdrop-blur sm:flex-row sm:gap-2 sm:p-2">
+								{/* Segmented phone control */}
+								<div className="flex w-full overflow-hidden rounded-xl ring-1 ring-gray-300 focus-within:ring-2 focus-within:ring-blue-500">
+									{/* Country code: free text with emoji datalist */}
+									<input
+										aria-label="Country code"
+										list="country-codes"
+										value={countryCode}
+										onChange={(e) => setCountryCode(e.target.value)}
+										placeholder="+353"
+										className="w-28 bg-blue-50 px-3 text-sm font-medium text-gray-800 ring-0 outline-none border-0 border-r border-blue-200"
+									/>
+									<datalist id="country-codes">
+										<option value="+353">🇮🇪 IE</option>
+										<option value="+44">🇬🇧 UK</option>
+										<option value="+1">🇺🇸/🇨🇦 US/CA</option>
+										<option value="+61">🇦🇺 AU</option>
+										<option value="+64">🇳🇿 NZ</option>
+										<option value="+49">🇩🇪 DE</option>
+										<option value="+33">🇫🇷 FR</option>
+										<option value="+39">🇮🇹 IT</option>
+										<option value="+91">🇮🇳 IN</option>
+										<option value="+971">🇦🇪 AE</option>
+									</datalist>
+									{/* Local number */}
+									<input
+										id="phone"
+										name="phone"
+										type="tel"
+										inputMode="tel"
+										autoComplete="tel"
+										placeholder="32 4332423"
+										value={localNumber}
+										onChange={(e) => setLocalNumber(e.target.value)}
+										className="flex-1 border-0 bg-white px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none"
+									/>
+								</div>
 								<button
 									type="submit"
 									disabled={isDisabled}
