@@ -27,7 +27,7 @@ export default function Home() {
 			}
 			setSubmitState("success");
 			setMessage("Success! We're calling you now.");
-		} catch (err) {
+		} catch {
 			setSubmitState("error");
 			setMessage("Something went wrong. Please try calling us directly.");
 		} finally {
@@ -36,9 +36,9 @@ export default function Home() {
 				setSubmitState((prev) => (prev === "loading" ? "loading" : "idle"));
 			}, 3000);
 		}
-	}, [phone, submitState]);
+	}, [phone]);
 
-	return (
+  return (
 		<main className="min-h-screen bg-white text-gray-900">
 			{/* Header */}
 			<header className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur">
@@ -55,8 +55,8 @@ export default function Home() {
 					</div>
 					<a href="#callback" className="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
 						Get Emergency Help Now
-					</a>
-				</div>
+          </a>
+        </div>
 			</header>
 
 			{/* Hero */}
@@ -64,7 +64,7 @@ export default function Home() {
 				className="relative isolate overflow-hidden"
 				style={{
 					backgroundImage:
-						"url('https://images.unsplash.com/photo-1560785496-3c9d27877182?q=80&w=2070&auto=format&fit=crop')",
+						"url('/picture.png')",
 					backgroundSize: "cover",
 					backgroundPosition: "center",
 				}}
@@ -73,7 +73,7 @@ export default function Home() {
 				<div className="relative mx-auto max-w-7xl px-6 py-20 sm:py-28">
 					<div className="max-w-2xl">
 						<h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-							Burst Pipe? Blocked Drain? We'll Call You Back in Seconds.
+							Burst Pipe? Blocked Drain? We&apos;ll Call You Back in Seconds.
 						</h1>
 						<p className="mt-6 text-lg leading-7 text-blue-100 sm:text-xl">
 							In an emergency, every second counts. Enter your number below for an instant callback from our dispatch team. No waiting, no hold music.
@@ -139,7 +139,7 @@ export default function Home() {
 							</div>
 							<div>
 								<h3 className="text-base font-semibold">24/7 Rapid Response</h3>
-								<p className="mt-1 text-sm text-gray-600">We're ready to help day or night. Our team is on standby for your emergency.</p>
+								<p className="mt-1 text-sm text-gray-600">We&apos;re ready to help day or night. Our team is on standby for your emergency.</p>
 							</div>
 						</div>
 					</div>
@@ -207,9 +207,9 @@ export default function Home() {
 				<div className="mx-auto max-w-7xl px-6 py-8 text-center text-sm text-gray-500">
 					© 2024 AquaFlow Plumbers. All rights reserved.
 				</div>
-			</footer>
+      </footer>
 		</main>
-	);
+  );
 }
 
 // (Removed duplicate default export and template content)
